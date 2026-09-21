@@ -20,40 +20,38 @@ app.use(
   createProxyMiddleware({
     target: process.env.REGISTRATION_SERVICE_URL,
     changeOrigin: true,
+    pathRewrite: { '^/register': '' },
   })
 );
 
-// Route: Login Service — public, no token required
 app.use(
   '/auth',
   createProxyMiddleware({
     target: process.env.LOGIN_SERVICE_URL,
     changeOrigin: true,
+    pathRewrite: { '^/auth': '' },
   })
 );
 
-// Route: Admin Service — requires a valid, non-expired token with role "admin"
 app.use(
   '/admin',
   requireRole('admin'),
   createProxyMiddleware({
     target: process.env.ADMIN_SERVICE_URL,
     changeOrigin: true,
+    pathRewrite: { '^/admin': '' },
   })
 );
 
-// Route: User Service — requires a valid, non-expired token with role "user"
 app.use(
   '/user',
   requireRole('user'),
   createProxyMiddleware({
     target: process.env.USER_SERVICE_URL,
     changeOrigin: true,
+    pathRewrite: { '^/user': '' },
     on: {
       proxyReq: (proxyReq, req) => {
-        // req.user was set by requireRole() after verifying the JWT.
-        // Forward the identity downstream so User Service knows whose
-        // profile to act on — it never sees or verifies the token itself.
         if (req.user) {
           proxyReq.setHeader('x-user-email', req.user.email);
         }
