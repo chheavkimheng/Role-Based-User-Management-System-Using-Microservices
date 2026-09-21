@@ -46,6 +46,10 @@ app.use(
 app.use(
   '/user',
   requireRole('user'),
+  (req, res, next) => {
+    req.headers['x-user-email'] = req.user.email;
+    next();
+  },
   createProxyMiddleware({
     target: process.env.USER_SERVICE_URL,
     changeOrigin: true,
